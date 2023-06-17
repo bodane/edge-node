@@ -1,0 +1,3 @@
+[submodule "images/proxy-socks-dante"]
+	path = images/proxy-socks-dante
+	url = https://github.com/letheanVPN/proxy-socks-dante.git
