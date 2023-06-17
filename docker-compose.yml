@@ -1,0 +1,24 @@
+---
+version: "3.4"
+
+services:
+  server:
+    image: ${OPEN_IMAGE:-lthn/openvpn}:${AUTHENTIK_TAG:latest}
+    restart: unless-stopped
+    command: server
+
+    volumes:
+      - ./media:/media
+      - ./custom-templates:/templates
+    env_file:
+      - .env
+    ports:
+      - "${COMPOSE_PORT_HTTP:-9000}:9000"
+      - "${COMPOSE_PORT_HTTPS:-9443}:9443"
+    depends_on:
+      - redis
+
+
+volumes:
+  database:
+    driver: local
