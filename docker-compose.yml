@@ -3,7 +3,7 @@ version: "3.4"
 
 services:
   server:
-    image: ${OPEN_IMAGE:-lthn/openvpn}:${AUTHENTIK_TAG:latest}
+    image: ${OPEN_IMAGE:-lthn/openvpn}:${AUTHENTIK_TAG:-latest}
     restart: unless-stopped
     command: server
 
