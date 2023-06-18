@@ -13,6 +13,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.dante.address=:2020"
       - "--certificatesresolvers.exitNode.acme.tlschallenge=true"
       #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
       - "--certificatesresolvers.exitNode.acme.email=devops@lethean.io"
@@ -32,18 +33,18 @@ services:
     env_file:
       - .env
     environment:
-      AUTHENTIK_HOST: https://$AUTH_HOSTNAME
+      AUTHENTIK_HOST: https://${AUTH_HOSTNAME}
       AUTHENTIK_INSECURE: "false"
       AUTHENTIK_TOKEN: token-generated-by-authentik
       # Starting with 2021.9, you can optionally set this too
       # when authentik_host for internal communication doesn't match the public URL
       # AUTHENTIK_HOST_BROWSER: https://external-domain.tld
     labels:
-      traefik.enable: false
+      traefik.enable: true
       traefik.port: 9000
-      traefik.http.routers.authentik.rule: Host(`$AUTH_HOSTNAME`) && PathPrefix(`/outpost.goauthentik.io/`)
+      traefik.http.routers.authentik.rule: HostRegexp(`${SERVER_CNAME_NAMESPACE}`, `{subdomain:[a-z]+}.${SERVER_CNAME_NAMESPACE}`) && PathPrefix(`/outpost.goauthentik.io/`)
       # `authentik-proxy` refers to the service name in the compose file.
-      traefik.http.middlewares.authentik.forwardauth.address: http://authentik-proxy:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.authentik.forwardauth.address: https://${AUTH_HOSTNAME}/outpost.goauthentik.io/auth/traefik
       traefik.http.middlewares.authentik.forwardauth.trustForwardHeader: true
       traefik.http.middlewares.authentik.forwardauth.authResponseHeaders: X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
     restart: unless-stopped
@@ -59,6 +60,6 @@ services:
       - "2020:2020"
     labels:
       - "traefik.enable=true"
-      - "traefik.port=2020"
-      - "traefik.http.routers.dante.rule=HostSNIRegexp(`$SERVER_CNAME_NAMESPACE`, `{subdomain:[a-z]+}.$SERVER_CNAME_NAMESPACE`)"
-      - "traefik.http.routers.dante.entrypoints=:2020"
+      - "traefik.http.routers.dante.rule=HostRegexp(`${SERVER_CNAME_NAMESPACE}`, `{subdomain:[a-z]+}.${SERVER_CNAME_NAMESPACE}`)"
+      - "traefik.http.routers.dante.entrypoints=dante"
+      - "traefik.http.routers.dante.middlewares=authentik@docker"
