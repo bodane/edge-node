@@ -1,6 +1,6 @@
 FROM alpine:latest as build
 
-RUN apk add --no-cache linux-pam apache2-utils build-base linux-pam-dev openvpn
+RUN apk add --no-cache openvpn openvpn-auth-ldap openssl bash git
 
 COPY --chmod=0777 ./bin/ /usr/bin
 
@@ -10,4 +10,4 @@ EXPOSE 1194/udp
 
 COPY ./conf/* /root
 
-ENTRYPOINT ["openvpn", "--config", "client-cert-ftm.conf"]
+ENTRYPOINT ["docker-entrypoint.sh"]
