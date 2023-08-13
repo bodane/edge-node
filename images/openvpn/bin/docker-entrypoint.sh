@@ -70,4 +70,5 @@ cat > "/etc/openvpn/${UPN}.ovpn" <<EOF
         </ca>
 EOF
 
+exec openvpn --genkey secret "/etc/openvpn/ta.key"
 exec openvpn --config "/etc/openvpn/openvpn.conf"
